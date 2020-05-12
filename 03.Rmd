@@ -6,6 +6,13 @@ output:
   github_document
 ---
 
+
+```{r, echo = F, cache = F}
+knitr::opts_chunk$set(fig.retina = 2.5)
+knitr::opts_chunk$set(fig.align = "center")
+options(width = 110)
+```
+
 # Introducing the Multilevel Model for Change
 
 > In this chapter [Singer and Willett introduced] the multilevel model for change, demonstrating how it allows us to address within-person and between-person questions about change simultaneously. Although there are several ways of writing the statistical model, here we adopt a simple and common approach that has much substantive appeal. We specify the multilevel model for change by simultaneously postulating a pair of subsidiary models—a level-1 submodel that describes how each person changes over time, and a level-2 model that describes how these changes differ across people ([Bryk & Raudenbush, 1987](http://personal.psu.edu/jxb14/M554/articles/Bryk%26Raudenbush1987.pdf); [Rogosa & Willett, 1985](https://link.springer.com/content/pdf/10.1007/BF02294247.pdf)). (p. 3) 
@@ -51,7 +58,7 @@ This part of the model is also called the *individual growth model*. Remember ho
 
 Here's our version of Figure 3.1. Note that here we're being lazy and just using OLS estimates.
 
-```{r, fig.width = 6.5, fig.height = 4}
+```{r, fig.width = 6.5, fig.height = 4, message = F, warning = F}
 early_int %>% 
   ggplot(aes(x = age, y = cog)) +
   stat_smooth(method = "lm", se = F) +
@@ -65,7 +72,7 @@ early_int %>%
 Based on these data, we postulate our level-1 submodel to be
 
 $$
-\text{cog}_{ij} = [ \pi_{0i} + \pi_{1i} (\text{age}_{ij} - 1) ] + [\epsilon_{ij}]
+\text{cog}_{ij} = [ \pi_{0i} + \pi_{1i} (\text{age}_{ij} - 1) ] + [\epsilon_{ij}].
 $$
 
 ### The structural part of the level-1 submodel.
@@ -111,8 +118,8 @@ path <-
          cog = c(90, 90, 130))
 
 text <-
-  tibble(age = c(1.2, 1.65, 2.15, 1.125, 2.075),
-         cog = c(105, 101, 137, 75, 110),
+  tibble(age   = c(1.2, 1.65, 2.15, 1.125, 2.075),
+         cog   = c(105, 101, 137, 75, 110),
          label = c("epsilon[italic(i)][1]", "epsilon[italic(i)][2]", 
                    "epsilon[italic(i)][3]", "pi[0][italic(i)]", "pi[1][italic(i)]"))
 
@@ -159,17 +166,17 @@ In this way, the multilevel model’s level-1 submodel is much like an interacti
 The last term in our level-1 equation from above was $[\epsilon_{ij}]$. This is the residual variance left in the criterion after accounting for the predictor(s) in the model. It is a mixture of systemic variation that could be accounted for by adding covariates to the model as well as measurement error. The typical assumption is
 
 $$
-\epsilon_{ij} \sim \operatorname{Normal} (0, \sigma_\epsilon^2)
+\epsilon_{ij} \sim \operatorname{Normal} (0, \sigma_\epsilon^2).
 $$
 
 We should point out that another way to express this is
 
 \begin{align*}
 \text{cog} & \sim \operatorname{Normal} (\mu_{ij}, \sigma_\epsilon^2) \\
-\mu_{ij}   & = \pi_{0i} + \pi_{1i} (\text{age}_{ij} - 1)
+\mu_{ij}   & = \pi_{0i} + \pi_{1i} (\text{age}_{ij} - 1).
 \end{align*}
 
-This won't be a huge deal in the context of the models Singer and Willett presented in the initial chapters of the text. But expressing the models this way can help one think in terms of likelihood functions. That's a major advantage when you start working with data which are natural to model using other distributions (e.g., count data and the Poisson, binary data and the binomial). For more on this approach, check out McElreath's [*Statistical Rethinking*](https://xcelab.net/rm/statistical-rethinking/) and my [companion project](https://bookdown.org/connect/#/apps/1850/access) translating his work into **brms** and **tidyverse** code. Also, thinking in terms of likelihoods will pay of later on when we start wading into survival analyses.
+This won't be a huge deal in the context of the models Singer and Willett presented in the initial chapters of the text but expressing the models this way can help one think in terms of likelihood functions. That's a major advantage when you start working with data which are natural to model using other distributions (e.g., count data and the Poisson, binary data and the binomial). For more on this approach, check out McElreath's [*Statistical Rethinking*](https://xcelab.net/rm/statistical-rethinking/) and my [companion project](https://bookdown.org/connect/#/apps/1850/access) translating his work into **brms** and **tidyverse** code. Also, thinking in terms of likelihoods will pay off starting around Chapter 10 when we start fitting discrete-time survival models.
 
 ### Relating the level-1 submodel to the OLS exploratory methods of chapter 2.
 
@@ -317,8 +324,7 @@ math <-
   tibble(age   = 1.01,
          cog   = c(94.5, 103),
          label = c("program = 0", "program = 1"),
-         text  = c("gamma[0][0] + gamma[10](italic(age) - 1)", 
-                  "(gamma[0][0] + gamma[10]) + (gamma[10] + gamma[11]) (italic(age) - 1)"),
+         text  = c("gamma[0][0] + gamma[10](italic(age) - 1)", "(gamma[0][0] + gamma[10]) + (gamma[10] + gamma[11]) (italic(age) - 1)"),
          angle = c(345.7, 349))
 ```
 
@@ -354,14 +360,14 @@ Returning to the text (p. 58), Singer and Willett asked: "What kind [of] populat
 3. "Each part must specify a relationship between an individual growth parameter and the predictor."
 4. "Each model must allow individuals who share common predictor values to vary in their individual change trajectories."
 
-Given the current model, the level-2 submodel of change may be expressed like this:
+Given the current model, the level-2 submodel of change may be expressed as
 
 \begin{align*}
 \pi_{0i} & = \gamma_{00} + \gamma_{01} \text{program} + \zeta_{0i} \\
-\pi_{1i} & = \gamma_{10} + \gamma_{11} \text{program} + \zeta_{1i}
+\pi_{1i} & = \gamma_{10} + \gamma_{11} \text{program} + \zeta_{1i}.
 \end{align*}
 
-And there are details about the $\zeta$ terms we'll discuss in a bit.
+We'll discuss the details about the $\zeta$ terms in a bit.
 
 ### Structural components of the level-2 submodel.
 
@@ -377,7 +383,7 @@ As on page 63 of the text, the typical way to express the multivariate distribut
 
 \begin{align*}
 \begin{bmatrix} \zeta_{0i} \\ \zeta_{1i} \end{bmatrix} & 
-\sim \text{N} 
+\sim \operatorname{N} 
 \bigg ( \begin{bmatrix} 0 \\ 0 \end{bmatrix},  
 \begin{bmatrix} \sigma_0^2 & \sigma_{01}\\ \sigma_{01} & \sigma_1^2 \end{bmatrix}
 \bigg ),
@@ -386,10 +392,10 @@ As on page 63 of the text, the typical way to express the multivariate distribut
 where the bracketed matrix on the right part of the equation is the variance/covariance matrix. If we summarize the vector of $\zeta$ terms as $u$ and so on, we can re-express the above equation as
 
 $$
-u \sim \text{N} (\mathbf{0}, \mathbf{\Sigma}),
+u \sim \operatorname{N} (\mathbf{0}, \mathbf{\Sigma}),
 $$
 
-where $\mathbf{0}$ is the vector of 0 means and $\mathbf{\Sigma}$ is the variance/covariance matrix. In **Stan**, and thus **brms**, we typically decompose $\mathbf{\Sigma}$ as
+where $\mathbf{0}$ is the vector of 0 means and $\mathbf{\Sigma}$ is the variance/covariance matrix. In Stan, and thus **brms**, we typically decompose $\mathbf{\Sigma}$ as
 
 \begin{align*}
 \mathbf{\Sigma} & = \mathbf{D} \mathbf{\Omega} \mathbf{D}, \text{where} \\
@@ -401,37 +407,37 @@ Thus $\mathbf{D}$ is the diagonal matrix of standard deviations and $\mathbf{\Om
 
 ## Fitting the multilevel model for change to data
 
-Singer and Willett discussed how in the 90s, we saw a bloom of software for fitting multilevel models. Very notably, they mentioned BUGS ([Gilks, Richardson, & Spiegelhalter, 1996](https://www.crcpress.com/Markov-Chain-Monte-Carlo-in-Practice/Gilks-Richardson-Spiegelhalter/p/book/9780412055515)) which stands for Bayesian inference using Gibbs sampling and was a major advance in Bayesian software. As we learn in Kruschke ([2014](http://www.indiana.edu/~kruschke/DoingBayesianDataAnalysis/)):
+Singer and Willett discussed how in the 90s, we saw a bloom of software for fitting multilevel models. Very notably, they mentioned BUGS ([Gilks, Richardson, & Spiegelhalter, 1996](https://www.crcpress.com/Markov-Chain-Monte-Carlo-in-Practice/Gilks-Richardson-Spiegelhalter/p/book/9780412055515)) which stands for 'Bayesian inference using Gibbs sampling' and was a major advance in Bayesian software. As we learn in Kruschke ([2015](http://www.indiana.edu/~kruschke/DoingBayesianDataAnalysis/)):
 
 > In 1997, BUGS had a Windows-only version called WinBUGS, and later it was reimplemented in OpenBUGS which also runs best on Windows operating systems. JAGS (Plummer, [2003](http://www.ci.tuwien.ac.at/Conferences/DSC-2003/Drafts/Plummer.pdf), [2012](http://blue.for.msu.edu/CSTAT_13/jags_user_manual.pdf)) retained many of the design features of BUGS, but with different samplers under the hood and better usability across different computer-operating systems (Windows, MacOS, and other forms of Linux/Unix). (pp. 193--194)
 
-There's also Stan. From their [homepage](https://mc-stan.org), we read "Stan is a state-of-the-art platform for statistical modeling and high-performance statistical computation." Stan is free and open-source and you can find links to various documentation resources, such as the current *User's Guide* and *Stan Language Reference Manual*, [here](https://mc-stan.org/users/documentation/). Unlike BUGS and JAGS, Stan samples from the posterior via Hamiltonian Monte Carlo, which tends to scale particularly well for complex multilevel models. However, in this project we won’t be working with Stan directly. Rather, we’ll interface with it indirectly through [**brms**](https://github.com/paul-buerkner/brms). To my knowledge, **brms** is the most flexible and user-friendly interface for Stan within the **R** ecosystem. 
+There's also Stan. From their [homepage](https://mc-stan.org), we read "Stan is a state-of-the-art platform for statistical modeling and high-performance statistical computation." Stan is free and open-source and you can find links to various documentation resources, such as the current *User's Guide* and *Stan Language Reference Manual*, at [https://mc-stan.org/users/documentation/](https://mc-stan.org/users/documentation/). Unlike BUGS and JAGS, Stan samples from the posterior via Hamiltonian Monte Carlo, which tends to scale particularly well for complex multilevel models. However, in this project we won't be working with Stan directly. Rather, we’ll interface with it indirectly through [**brms**](https://github.com/paul-buerkner/brms). To my knowledge, **brms** is the most flexible and user-friendly interface for Stan within the **R** ecosystem. 
 
 Talking about the various software options, Singer and Willett wrote:
 
 > All have their strengths, and we use many of them in our research and in this book. At their core, each program does the same job; it fits the multilevel model for change to data and provides parameter estimates, measures of precision, diagnostics, and so on. There is also some evidence that all the different packages produce the same, or similar, answers to a given problem ([Kreft & de Leeuw, 1990](https://files.eric.ed.gov/fulltext/ED340731.pdf)). So, in one sense, it does not matter which program you choose. (p. 64)
 
-But importantly, in the next paragraph the authors clarified their text focused on "one particular method of estimation--*maximum likelihood*" (p. 64, *emphasis* in the original). This is quite important because, whereas we might expect various maximum-likelihood-based packages to yield the same or similar results, this will not necessarily hold when working with Bayesian software which, in addition to point estimates and expressions of uncertainty, yields an entire posterior distribution as a consequence of Bayes’ theorem 
+But importantly, in the next paragraph the authors clarified their text focused on "one particular method of estimation--*maximum likelihood*" (p. 64, *emphasis* in the original). This is quite important because, whereas we might expect various maximum-likelihood-based packages to yield the same or similar results, this will not necessarily hold when working with Bayesian software which, in addition to point estimates and expressions of uncertainty, yields an entire posterior distribution as a consequence of Bayes' theorem,
 
 $$
-p(\theta | d) = \frac{p(d | \theta) \; p(\theta)}{p(d)}
+p(\theta | d) = \frac{p(d | \theta) \; p(\theta)}{p(d)},
 $$
 
 where $p(\theta | d)$ is the posterior distribution, $p(d | \theta)$ is the likelihood (i.e., the star of maximum likelihood), $p(\theta)$ are the priors, and $p(d)$ is the normalizing constant, the probability of the data which transforms the numerator to a probability metric.
 
-Given that multilevel models are a fairly advanced topic, it’s not my goal in this project to offer a tutorial in the foundations of applied Bayesian statistics. I’m taking it for granted you’re familiar with the basics. But if you’re very ambitious and this is new or if you’re just rusty, I recommend you back up and lean the ropes with [Richard McElreath](https://twitter.com/rlmcelreath)’s excellent introductory text, [*Statistical Rethinking*](http://xcelab.net/rm/statistical-rethinking/). He has great [freely-available lectures](https://www.youtube.com/channel/UCNJK6_DZvcMqNSzQdEkzvzA/playlists) that augment the text and I also have a [ebook](https://bookdown.org/content/3890/) translating his book in to **brms** and **tidyverse**-style code.
+Given that multilevel models are a fairly advanced topic, it’s not my goal in this project to offer a tutorial on the foundations of applied Bayesian statistics. I’m taking it for granted you’re familiar with the basics. But if you’re very ambitious and this is new or if you’re just rusty, I recommend you back up and lean the ropes with [Richard McElreath](https://twitter.com/rlmcelreath)’s excellent introductory text, [*Statistical Rethinking*](http://xcelab.net/rm/statistical-rethinking/). He has great [freely-available lectures](https://www.youtube.com/channel/UCNJK6_DZvcMqNSzQdEkzvzA/playlists) that augment the text and I also have a [ebook](https://bookdown.org/content/3890/) translating his book in to **brms** and **tidyverse**-style code.
 
 ### The advantages of ~~maximum likelihood~~ Bayesian estimation.
 
-I just don’t think I have the strength to evangelize Bayes, at the moment. McElreath covered that a little bit in [*Statistical Rethinking*](http://xcelab.net/rm/statistical-rethinking/), but he mainly took it for granted. Kruschke has been more of a Bayesian evangelist, examples of which are his [2015 text](http://www.indiana.edu/~kruschke/DoingBayesianDataAnalysis/) or his coauthored paper with Torrin Liddell, [*The Bayesian New Statistics: Hypothesis testing, estimation, meta-analysis, and power analysis from a Bayesian perspective*](https://link.springer.com/article/10.3758/s13423-016-1221-4). My assumption is if you’re reading this, you’re already interested.
+I just don't think I have the strength to evangelize Bayes, at the moment. McElreath covered that a little bit in [*Statistical Rethinking*](http://xcelab.net/rm/statistical-rethinking/), but he mainly took it for granted. Kruschke has been more of a Bayesian evangelist, examples of which are his [2015 text](http://www.indiana.edu/~kruschke/DoingBayesianDataAnalysis/) or his coauthored paper with Torrin Liddell, [*The Bayesian New Statistics: Hypothesis testing, estimation, meta-analysis, and power analysis from a Bayesian perspective*](https://link.springer.com/article/10.3758/s13423-016-1221-4). My assumption is if you’re reading this, you're already interested.
 
 ### Using ~~maximum likelihood~~ modern Bayesian methods to fit a multilevel model.
 
-Just as with maximum likelihood, you have to specify a likelihood function with Bayes, too. In fact, the likelihood ($p(d | \theta)$) is half of the numerator of Bayes's theorem. And its meaning in Bayes is that same as with maximum likelihood; it "describes the probability of observing the sample data as a function of the model's unknown parameters" (p. 66). But unlike with maximum likelihood, we multiply the likelihood with the prior(s) and normalize the results so they're in a probability metric.
+Just as with maximum likelihood, you have to specify a likelihood function with Bayes, too. The likelihood, $p(d | \theta)$, is half of the numerator of Bayes's theorem and its meaning in Bayes is that same as with maximum likelihood estimation. The likelihood "describes the probability of observing the sample data as a function of the model's unknown parameters" (p. 66). But unlike with maximum likelihood, we multiply the likelihood with the prior(s) and normalize the results so they're in a probability metric.
 
 ## Examining estimated fixed effects
 
-Singer and Willett discussed hypothesis testing in this section. The Bayesian paradigm can be used for hypothesis testing. For an introduction to this approach, check out chapters 11 and 12 of Kruschke's (2015) text. This will not be our approach in this project. My perspective on Bayesian modeling is more influenced by McElreath's text and by [Andrew Gelman](http://www.stat.columbia.edu/~gelman/)'s various works. I like fitting models, inspecting their parameters, interpreting them from an effect-size perspective, and considering posterior predictions. You’ll see plenty of examples of this approach in the examples to come.
+Singer and Willett discussed hypothesis testing in this section. The Bayesian paradigm can be used for hypothesis testing. For an introduction to this approach, check out Chapters 11 and 12 of Kruschke's (2015) text. This will not be our approach in this project. My perspective on Bayesian modeling is more influenced by McElreath's text and by [Andrew Gelman](http://www.stat.columbia.edu/~gelman/)'s various works. I like fitting models, inspecting their parameters, interpreting them from an effect-size perspective, and considering posterior predictions. You'll see plenty of examples of this approach in the examples to come.
 
 ### Interpreting estimated fixed effects.
 
@@ -454,11 +460,11 @@ fit3.2 <-
       file = "fits/fit03.02")
 ```
 
-Compared to last chapter, we’ve added a few arguments. Notice the second line, `family = gaussian`. Remember all that likelihood talk from the last few sections? Well, with `family = gaussian` we've indicated we want to use the Gaussian likelihood function. As this is the **brms** default, we didn't actually need to type out the argument. But we'll follow this convention for the remainder of the text for two reasons. First, I hope it's pedagogically useful to remind you of what likelihood you're working with. Second, I think it's generally a good idea to explicate your likelihood. In the context of the initial chapters of this text, this might seem unnecessary. We'll constantly be using the Gaussian. But that's largely a pedagogical decision made by the authors. There are lots of every-day applications for multilevel models with other likelihood functions, such as those suited for discrete data. And when the day comes you'll need to fit a multilevel logistic regression model, you'll need to use a different setting in the `family` argument. Plus, we will have some practice using other likelihood functions in the survival chapters later in the text.
+Compared to last chapter, we've added a few arguments. Notice the second line, `family = gaussian`. Remember all that likelihood talk from the last few sections? Well, with `family = gaussian` we've indicated we want to use the Gaussian likelihood function. As this is the **brms** default, we didn't actually need to type out the argument. But we'll follow this convention for the remainder of the text for two reasons. First, I hope it's pedagogically useful to remind you of what likelihood you're working with. Second, I think it's generally a good idea to explicate your likelihood. In the context of the initial chapters of this text, this might seem unnecessary. We'll constantly be using the Gaussian. But that's largely a pedagogical decision made by the authors. There are lots of every-day applications for multilevel models with other likelihood functions, such as those suited for discrete data. And when the day comes you'll need to fit a multilevel logistic regression model, you'll need to use a different setting in the `family` argument. Plus, we will have some practice using other likelihood functions in the survival chapters later in the text.
 
-Here's the big new thing: our `formula` specified a multilevel model! Check out the `(1 + age_c | id)` syntax on the right. This syntax is designed to be similar to the that of the widely-used frequentist **lme4** package. In the **brms** [reference manual](https://cran.r-project.org/web/packages/brms/brms.pdf), we lean this syntax follows the generic form `(gterms | group)` where "the optional `gterms` part may contain effects that are assumed to vary across grouping variables specified in `group`. We call them 'group-level' effects or (adopting frequentist vocabulary) 'random' effects, although the latter name is misleading in a Bayesian context" (p. 35). And like with base **R**'s `lm()` function or with **lme4**, the `1` portion is a stand-in for the intercept. Thus, with `1 + age_c`, we indicated we wanted the intercept and `age_c` slope to vary across groups. On the right side of the `|`, we defined our grouping variable as `id`.
+Here's the big new thing: our `formula` line specified a multilevel model! Check out the `(1 + age_c | id)` syntax on the right. This syntax is designed to be similar to the that of the widely-used frequentist **lme4** package. In the **brms** [reference manual](https://cran.r-project.org/web/packages/brms/brms.pdf), we lean this syntax follows the generic form `(gterms | group)` where "the optional `gterms` part may contain effects that are assumed to vary across grouping variables specified in `group`. We call them 'group-level' effects or (adopting frequentist vocabulary) 'random' effects, although the latter name is misleading in a Bayesian context" (p. 35). And like with base **R**'s `lm()` function or with **lme4**, the `1` portion is a stand-in for the intercept. Thus, with `1 + age_c`, we indicated we wanted the intercept and `age_c` slope to vary across groups. On the right side of the `|`, we defined our grouping variable as `id`.
 
-Another important part of the `formula` syntax is concerns the intercept for the fixed effects. See the `0 + intercept` part? Here's the deal: If we were using default behavior, we'd have coded either `1 + ...` or just left that part out entirely. Both would have estimated the fixed intercept according to **brms** default behavior. But that's the issue. By default, `brms::brm()` presumes your predictors are mean centered. This is critical because the default priors set by `brms::brm()` are also set based on this assumption. As it turns out, neither our `age_c` nor `program` variables are centered that way. `program` is a dummy variable and `age_c` is centered on 1, not the mean. Now since the `brm()` default priors are rather broad and uninformative, This probably wouldn't have made much of a difference, here. However, we may as well address this issue now and avoid bad practices. So, with our `0 + intercept` solution, we told `brm()` to suppress the default intercept and replace it with our smartly-named `Intercept` parameter. This is our fixed effect for the population intercept and, importantly, `brms()` will assign default priors to it based on the data themselves without assumptions about centering. 
+Another important part of the `formula` syntax concerns the intercept for the fixed effects. See the `0 + Intercept` part? Here's the deal: If we were using default behavior, we'd have coded either `1 + ...` or just left that part out entirely. Both would have estimated the fixed intercept according to **brms** default behavior. But that's the issue. By default, `brms::brm()` presumes your predictors are mean centered. This is critical because the default priors set by `brms::brm()` are also set based on this assumption. As it turns out, neither our `age_c` nor `program` variables are centered that way. `program` is a dummy variable and `age_c` is centered on 1, not the mean. Now since the `brm()` default priors are rather broad and uninformative, This probably wouldn't have made much of a difference, here. However, we may as well address this issue now and avoid bad practices. So, with our `0 + Intercept` solution, we told `brm()` to suppress the default intercept and replace it with our smartly-named `Intercept` parameter. This is our fixed effect for the population intercept and, importantly, `brms()` will assign default priors to it based on the data themselves without assumptions about centering. 
 
 I'd like to acknowledge at this point that if **brms** and/or the multilevel model are new to you, this can be disorienting and confusing. I'm sorry. The world is unfair and Singer and Willett didn't write their text with **brms** in mind. Had they done so, they'd have used mean-centered predictors for the first few models to put off this technical issue until later chapters. Yet here we are. So if you're feeling frustrated, that mainly just means you're paying attention. Good job! Forge on, friends. It'll get better.
 
@@ -474,7 +480,7 @@ Okay, that's a lot of boring technical talk. Let's use `print()` to see what we 
 print(fit3.2)
 ```
 
-Now we're in multilevel-model land, we have three main sections in the output. Let's start in the middle. The 'Population-Level Effects:' section contains our **brms** analogues to the "Fixed Effects" portion of Singer and Willett's Table 3.3. These are our $\gamma$ parameter summaries. Like we briefly covered in the last chapter, **brms** does not give $z$- or $p$-values. But we do get high-quality percentile-based Bayesian 95% intervals. Perhaps somewhat frustratingly, our 'Estimate' values are a little different from those in the text. In this instance, this is more due to us not having access to the original data than differences between Bayesian and maximum likelihood estimation. They’'ll be closer in many other examples.
+Now we're in multilevel-model land, we have three main sections in the output. Let's start in the middle. The 'Population-Level Effects:' section contains our **brms** analogues to the "Fixed Effects" portion of Singer and Willett's Table 3.3. These are our $\gamma$ parameter summaries. Like we briefly covered in the last chapter, **brms** does not give $z$- or $p$-values. But we do get high-quality percentile-based Bayesian 95% intervals. Perhaps somewhat frustratingly, our 'Estimate' values are a little different from those in the text. In this instance, this is more due to us not having access to the original data than differences between Bayesian and maximum likelihood estimation. They'll be closer in many other examples.
 
 The bottom section, 'Family Specific Parameters:', is our analogue to the first line in Table 3.3's "Variance Components" section. What Singer and Willett referred to as $\epsilon_{ij}$, the **brms** package calls `sigma`. But importantly, do recall that Stan and **brms** parameterize variance components in the standard-deviation metric. So you'd have to square our `sigma` to put it in a similar metric to the estimate in the text. This will be the case throughout this project. But why call this section 'Family Specific Parameters'? Well, not all likelihoods have a $\sigma$ parameter. In the Poisson likelihood, for example, the mean and variance scale together as one parameter called $\lambda$. Since **brms** is designed to handle a whole slew of likelihood functions (see the [*Parameterization of Response Distributions in brms*](https://cran.r-project.org/web/packages/brms/vignettes/brms_families.html) vignette), it behooved [Bürkner](https://twitter.com/paulbuerkner) to give this section a generic name.
 
@@ -493,10 +499,10 @@ fixef(fit3.2)[1, 1] %>%
   round(digits = 2)
 ```
 
-Thus, we can write our version of the equations atop page 70 like this:
+Thus, we can write our version of the equations atop page 70 as
 
-$\hat{\pi}_{0i} =$ `r round(fixef(fit3.2)[1, 1], 2)` $+$ `r round(fixef(fit3.2)[3, 1], 2)`$\text{program}_i$
-$\hat{\pi}_{1i} =$ `r round(fixef(fit3.2)[2, 1], 2)` $+$ `r round(fixef(fit3.2)[4, 1], 2)`$\text{program}_i$
+* $\hat{\pi}_{0i} =$ `r round(fixef(fit3.2)[1, 1], 2)` $+$ `r round(fixef(fit3.2)[3, 1], 2)`$\text{program}_i$ and
+* $\hat{\pi}_{1i} =$ `r round(fixef(fit3.2)[2, 1], 2)` $+$ `r round(fixef(fit3.2)[4, 1], 2)`$\text{program}_i$.
 
 Again, our results differ largely because they're based on simulated data rather than the real data in the text. We'll be able to work with the original data in the later chapters. Anyway, here are the results of those two equations.
 
@@ -521,14 +527,10 @@ To make our version of Figure 3.5, we'll pump the necessary `age_c` and `program
 
 ```{r, fig.width = 3, fig.height = 4}
 # specify the values for our covariates `age_c` and `program`
-tibble(age_c = 0:1) %>% 
-  expand(age_c,
+crossing(age_c   = 0:1,
          program = 0:1) %>% 
   # push those values through the fixed effects
-  mutate(cog = fixef(fit3.2)[1, 1] + 
-           fixef(fit3.2)[2, 1] * age_c + 
-           fixef(fit3.2)[3, 1] * program + 
-           fixef(fit3.2)[4, 1] * age_c * program,
+  mutate(cog = fixef(fit3.2)[1, 1] + fixef(fit3.2)[2, 1] * age_c + fixef(fit3.2)[3, 1] * program + fixef(fit3.2)[4, 1] * age_c * program,
          # wrangle a bit
          age     = age_c + 1,
          size    = ifelse(program == 1, 1/5, 3),
@@ -550,7 +552,7 @@ tibble(age_c = 0:1) %>%
 
 You can do this with **brms** with the `hypothesis()` function. I'm not a fan of this method and am not going to showcase it in this project. If you insist on the NHST paradigm, you'll have to go that alone. 
 
-Within the Bayesian paradigm, we have an entire posterior distribution. So let's just look at that. Recall that in the `print()` and `fixef()` outputs, we get the parameter estimates for our $\gamma$s summarized in terms of the posterior mean (i.e., 'Estimate'), the posterior standard deviation (i.e., 'Est.error'), and the percentile-based 95% credible intervals (i.e., 'Q2.5' and 'Q97.5'). But we can get much richer output with the `posterior_samples()` function.
+Within the Bayesian paradigm, we have an entire posterior distribution. So let's just look at that. Recall that in the `print()` and `fixef()` outputs, we get the parameter estimates for our $\gamma$'s summarized in terms of the posterior mean (i.e., 'Estimate'), the posterior standard deviation (i.e., 'Est.error'), and the percentile-based 95% credible intervals (i.e., 'Q2.5' and 'Q97.5'). But we can get much richer output with the `posterior_samples()` function.
 
 ```{r}
 post <- posterior_samples(fit3.2)
@@ -585,7 +587,7 @@ post %>%
   pivot_longer(starts_with("b_")) %>% 
   
   ggplot(aes(x = value)) +
-  geom_density(color = "transparent", fill = "forestgreen") +
+  geom_density(color = "transparent", fill = "grey25") +
   scale_y_continuous(NULL, breaks = NULL) +
   theme(panel.grid = element_blank()) +
   facet_wrap(~name, scales = "free")
@@ -617,7 +619,7 @@ In case that output is confusing, `VarCorr()` returned a 2-element list of lists
 VarCorr(fit3.2)[[1]] %>% str()
 ```
 
-If you just want the $\zeta$s, subset the first list of the first list.
+If you just want the $\zeta$'s, subset the first list of the first list.
 
 ```{r}
 VarCorr(fit3.2)[[1]][[1]]
@@ -639,18 +641,19 @@ You can also use the appropriate algebraic operations to transform some of the c
 
 ```{r}
 posterior_samples(fit3.2) %>% 
-  transmute(`sigma[0]^2`  = sd_id__Intercept^2,
-            `sigma[1]^2`  = sd_id__age_c^2,
-            `sigma[0][1]` = sd_id__Intercept * cor_id__Intercept__age_c * sd_id__age_c,
-            `sigma[epsilon]^2` = sigma^2) %>% 
-  gather(key, posterior) %>% 
+  mutate(`sigma[0]^2`       = sd_id__Intercept^2,
+         `sigma[1]^2`       = sd_id__age_c^2,
+         `sigma[0][1]`      = sd_id__Intercept * cor_id__Intercept__age_c * sd_id__age_c,
+         `sigma[epsilon]^2` = sigma^2) %>% 
+  pivot_longer(starts_with("sigma["),
+               values_to = "posterior") %>% 
   
   ggplot(aes(x = posterior)) +
-  geom_density(color = "transparent", fill = "maroon") +
+  geom_density(color = "transparent", fill = "grey33") +
   scale_y_continuous(NULL, breaks = NULL) +
   theme(panel.grid = element_blank(),
         strip.text = element_text(size = 12)) +
-  facet_wrap(~key, scales = "free", labeller = label_parsed) 
+  facet_wrap(~name, scales = "free", labeller = label_parsed) 
 ```
 
 As it turns out, the multilevel variance components are often markedly non-Gaussian. This is important for the next section.
@@ -705,7 +708,7 @@ For our next step, we'll define our $\gamma$ parameters. These are also taken fr
 
 ```{r}
 g <-
-  tibble(id = 1:n,
+  tibble(id       = 1:n,
          gamma_00 = 107.84,
          gamma_01 = 6.85,
          gamma_10 = -21.13,
@@ -716,7 +719,7 @@ head(g)
 
 Note how they're the same for each row. That's the essence of the meaning of a fixed effect.
 
-Anyway, this next block is a big one. After we combine `g` and `z`, we add in the appropriate `program` and `age_c` values. You can figure out those from pages 46 and 47. We then insert our final model parameter, $\epsilon$, and combine the $\gamma$s and $\zeta$s to make our two $\pi$ parameters (see page 60). Once that's all in place, we're ready to use the model formula to calculate the expected `cog` values from the $\pi$s, `age_c`, and $\epsilon$. 
+Anyway, this next block is a big one. After we combine `g` and `z`, we add in the appropriate `program` and `age_c` values. You can figure out those from pages 46 and 47. We then insert our final model parameter, $\epsilon$, and combine the $\gamma$'s and $\zeta$'s to make our two $\pi$ parameters (see page 60). Once that's all in place, we're ready to use the model formula to calculate the expected `cog` values from the $\pi$'s, `age_c`, and $\epsilon$. 
 
 ```{r}
 # set the seed for the second `mutate()` line
@@ -735,7 +738,7 @@ early_int_sim <-
 head(early_int_sim)
 ```
 
-But before we do, we’ll want to wrangle a little. We need an `age` column. If you look closely at Table 3.3, you'll see all the `cog` values are integers. So we’ll round ours to match. Finally, we'll want to renumber our `id` values to match up better with those in Table 3.3.
+But before we do, we'll want to wrangle a little. We need an `age` column. If you look closely at Table 3.3, you'll see all the `cog` values are integers. So we’ll round ours to match. Finally, we'll want to renumber our `id` values to match up better with those in Table 3.3.
 
 ```{r}
 early_int_sim <-
@@ -777,9 +780,11 @@ save(early_int_sim,
 sessionInfo()
 ```
 
-```{r, echo = F, eval = F}
+```{r, echo = F, message = F}
 # here we'll remove our objects
 rm(early_int, early_int_sim, d, fit3.1, f, path, text, arrow, by_id, n, nd, p, math, fit3.2, post, sigma, mu, z, g)
 
 theme_set(theme_grey())
+pacman::p_unload(pacman::p_loaded(), character.only = TRUE)
 ```
+
